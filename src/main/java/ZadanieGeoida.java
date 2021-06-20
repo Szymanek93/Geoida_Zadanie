@@ -77,58 +77,95 @@ public class ZadanieGeoida {
         return (number/100) ;
     }
 
-    public static double searchXNode1(double pointX) throws IOException {
+    public static double searchXNodeDown(double pointX) throws IOException {
         Double rangeXMin = (readRow(1));
         double gridStep = findStep();
         double nodeX = roundNum(((pointX-rangeXMin)/gridStep)-((pointX-rangeXMin)%gridStep)/100);
-//        double nodeX = ((pointX-rangeXMin)/gridStep)/100;
-//        double nodeX=pointX-rangeXMin;
         return nodeX;
     }
-    public static double searchYNode1(double pointY) throws IOException {
+    public static double searchYNodeDown(double pointY) throws IOException {
         int rangeYMin = (int) readRow(2);
-        //double rangeYMin = 14.00;
-
         double gridStep = findStep();
         double nodeY = roundNum(((pointY-rangeYMin)/gridStep)-((pointY-rangeYMin)%gridStep)/100);
-//        Double nodeY=pointY-rangeYMin;
         return nodeY;
     }
-    public static double searchValueNode1(double nodeX, double nodeY) throws IOException {
+    public static double searchXNodeUp(double pointX) throws IOException {
+        Double rangeXMin = (readRow(1));
+        double gridStep = findStep();
+        double nodeX = roundNum(((pointX-rangeXMin+0.01)/gridStep)-((pointX-rangeXMin)%gridStep)/100);
+        return nodeX;
+    }
+    public static double searchYNodeUp(double pointY) throws IOException {
+        int rangeYMin = (int) readRow(2);
+        double gridStep = findStep();
+        double nodeY = roundNum(((pointY-rangeYMin+0.01)/gridStep)-((pointY-rangeYMin)%gridStep)/100);
+        return nodeY;
+    }
+
+    public static double searchValueNode(double nodeX, double nodeY) throws IOException {
         double gridStep = findStep();
         int gridStartInFile = 7;
         int colNumber= (int) readRow(5)+1;
         double nodeNumber = 0;
         if (nodeX == 0){
             nodeNumber = roundNum((((nodeY/gridStep)))+gridStartInFile)*100;
-            System.out.println("a");
+//            System.out.println("a");
         }
         else{
             nodeNumber = roundNum((((nodeX/gridStep)*colNumber)+((nodeY/gridStep)))+gridStartInFile)*100;
-            System.out.println("b");
+//            System.out.println("b");
         }
         int nodeNumberParse = (int) nodeNumber;
-        System.out.println(nodeNumberParse);
+//        System.out.println(nodeNumberParse);
         double vauleNode=readRow(nodeNumberParse);
-        System.out.println(vauleNode);
+//        System.out.println(vauleNode);
         return vauleNode;
 
     }
+    public static double bilinearInterpolation(double pointX, double pointY) throws IOException {
+        //współrzędne zredukowane do początku osi
+        double pointXred=pointX-readRow(1);
+        double pointYred=pointY-readRow(2);
+        //wyznaczanie współrzędnych punktów wezłowych
+        double Xdown = searchXNodeDown(pointX);
+        double Xup= searchXNodeUp(pointX);
+        double Ydown=searchYNodeDown(pointY);
+        double Yup=searchYNodeUp(pointY);
+        //pobieranie wartości z punktów węzłowych
+        double valueNode1 = searchValueNode(Xdown,Ydown);
+        double valueNode2 = searchValueNode(Xup,Ydown);
+        double valueNode3 = searchValueNode(Xup,Yup);
+        double valueNode4 = searchValueNode(Xdown,Yup);
+        //obliczenie składowych funkcji
+        double fR1 = (((Yup-pointYred)/(Yup-Ydown))*valueNode1)+(((pointYred-Ydown)/(Yup-Ydown))*valueNode4);
+        double fR2 = (((Yup-pointYred)/(Yup-Ydown))*valueNode2)+(((pointYred-Ydown)/(Yup-Ydown))*valueNode3);
+        double pointValue=((Xup-pointXred)/(Xup-Xdown)*fR1)+((pointXred-Xdown)/(Xup-Xdown)*fR2);
+
+        System.out.println(valueNode1);
+        System.out.println(valueNode2);
+        System.out.println(valueNode3);
+        System.out.println(valueNode4);
+        System.out.format("%.4f%n",pointValue);
+        return pointValue;
+    }
+
+
+
     public static void main(String[] args) throws IOException {
-//        System.out.println(searchValueNode1(searchXNode1(49.00),searchYNode1((22.65))));
+        bilinearInterpolation(49.0034112312,22.65101123);
+
+
+//        System.out.println("49.00,22,65");
 //        System.out.println(37.2196);
-//        System.out.println(searchValueNode1(searchXNode1(49.00),searchYNode1((22.89))));
-//        System.out.println(36.7878);
-//        System.out.println(searchValueNode1(searchXNode1(49.36213),searchYNode1((22.053213))));
-//        System.out.println(36.8674);
-//        System.out.println(searchValueNode1(searchXNode1(52.503213),searchYNode1((22.293213))));
-//        System.out.println(28.5956);
-//        System.out.println(searchValueNode1(searchXNode1(53.0812),searchYNode1((15.30789))));
-//        System.out.println(34.9783);
-//        System.out.println(searchValueNode1(searchXNode1(53.77),searchYNode1((18.23))));
-//        System.out.println(29.4011);
-//        System.out.println(searchValueNode1(searchXNode1(54.05),searchYNode1((20.01))));
-//        System.out.println(29.0006);
+//        System.out.println("49.01,22,65");
+//        System.out.println(37.1977);
+//        System.out.println("49.01,22,66");
+//        System.out.println(37.1808);
+//        System.out.println("49.00,22,66");
+//        System.out.println(37.2021);
+
+
+
 
     }
 
