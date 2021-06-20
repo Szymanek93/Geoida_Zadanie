@@ -122,7 +122,7 @@ public class ZadanieGeoida {
         return vauleNode;
 
     }
-    public static double bilinearInterpolation(double pointX, double pointY) throws IOException {
+    public static double biLinearInterpolation(double pointX, double pointY) throws IOException {
         //współrzędne zredukowane do początku osi
         double pointXred=pointX-readRow(1);
         double pointYred=pointY-readRow(2);
@@ -140,20 +140,52 @@ public class ZadanieGeoida {
         double fR1 = (((Yup-pointYred)/(Yup-Ydown))*valueNode1)+(((pointYred-Ydown)/(Yup-Ydown))*valueNode4);
         double fR2 = (((Yup-pointYred)/(Yup-Ydown))*valueNode2)+(((pointYred-Ydown)/(Yup-Ydown))*valueNode3);
         double pointValue=((Xup-pointXred)/(Xup-Xdown)*fR1)+((pointXred-Xdown)/(Xup-Xdown)*fR2);
-
-        System.out.println(valueNode1);
-        System.out.println(valueNode2);
-        System.out.println(valueNode3);
-        System.out.println(valueNode4);
-        System.out.format("%.4f%n",pointValue);
         return pointValue;
+
     }
 
+    public static double searchXNodeDownBiCubic(double pointX, double addStep) throws IOException {
+        double rangeXMin = (readRow(1));
+        double gridStep = findStep();
+        double nodeX = roundNum(((pointX-rangeXMin+addStep)/gridStep)-((pointX-rangeXMin+ addStep)%gridStep)/100);
+        return nodeX;
+    }
+    public static double searchYNodeDownBiCubic(double pointY, double addStep) throws IOException {
+        double rangeYMin = readRow(2);
+        double gridStep = findStep();
+        double nodeY = roundNum(((pointY - rangeYMin + addStep) / gridStep) - ((pointY-rangeYMin+ addStep)%gridStep)/100);
+        return nodeY;
+    }
+
+    public static double biCubicInterpolation(double pointX, double pointY) throws IOException {
+        double valueNode1 = searchValueNode((searchXNodeDownBiCubic(pointX,(0))),searchYNodeDownBiCubic(pointY,(0)));
+        double valueNode2 = searchValueNode((searchXNodeDownBiCubic(pointX,(0.01))),searchYNodeDownBiCubic(pointY,0));
+        double valueNode3 = searchValueNode((searchXNodeDownBiCubic(pointX,(0.01))),searchYNodeDownBiCubic(pointY,(0.01)));
+        double valueNode4 = searchValueNode((searchXNodeDownBiCubic(pointX,(0))),searchYNodeDownBiCubic(pointY,(0.01)));
+        double valueNode5 = searchValueNode((searchXNodeDownBiCubic(pointX,(-0.01))),searchYNodeDownBiCubic(pointY,(-0.01)));
+        double valueNode6 = searchValueNode((searchXNodeDownBiCubic(pointX,(0))),searchYNodeDownBiCubic(pointY,(-0.01)));
+        double valueNode7 = searchValueNode((searchXNodeDownBiCubic(pointX,(0.01))),searchYNodeDownBiCubic(pointY,(-0.01)));
+        double valueNode8 = searchValueNode((searchXNodeDownBiCubic(pointX,(0.02))),searchYNodeDownBiCubic(pointY,(-0.01)));
+        double valueNode9 = searchValueNode((searchXNodeDownBiCubic(pointX,(0.02))),searchYNodeDownBiCubic(pointY,(0)));
+        double valueNode10 = searchValueNode((searchXNodeDownBiCubic(pointX,(0.02))),searchYNodeDownBiCubic(pointY,(0.01)));
+        double valueNode11= searchValueNode((searchXNodeDownBiCubic(pointX,(0.02))),searchYNodeDownBiCubic(pointY,(0.02)));
+        double valueNode12 = searchValueNode((searchXNodeDownBiCubic(pointX,(0.01))),searchYNodeDownBiCubic(pointY,(0.02)));
+        double valueNode13 = searchValueNode((searchXNodeDownBiCubic(pointX,(0.00))),searchYNodeDownBiCubic(pointY,(0.02)));
+        double valueNode14 = searchValueNode((searchXNodeDownBiCubic(pointX,(-0.01))),searchYNodeDownBiCubic(pointY,(0.02)));
+        double valueNode15 = searchValueNode((searchXNodeDownBiCubic(pointX,(-0.01))),searchYNodeDownBiCubic(pointY,(0.01)));
+        double valueNode16 = searchValueNode((searchXNodeDownBiCubic(pointX,(-0.01))),searchYNodeDownBiCubic(pointY,(0.00)));
+
+        double valueBicubicIntepolation=(valueNode1+valueNode2+valueNode3+valueNode4+valueNode5+
+                valueNode6+valueNode7+valueNode8+valueNode9+valueNode10+valueNode11+valueNode12+
+                valueNode13+valueNode14+valueNode15+valueNode16)/16;
+        return valueBicubicIntepolation;
+
+        }
 
 
     public static void main(String[] args) throws IOException {
-        bilinearInterpolation(49.0034112312,22.65101123);
-
+        System.out.println(biLinearInterpolation(49.34112312,22.65101123));
+        System.out.println(biCubicInterpolation(49.34112312,22.65101123));
 
 //        System.out.println("49.00,22,65");
 //        System.out.println(37.2196);
